@@ -44,6 +44,10 @@ const Register = () => {
   };
 
   const getErrorMessage = () => {
+    // Check for error message in response data (backend format: {error: "..."} or {message: "..."})
+    if (registerMutation.error?.response?.data?.error) {
+      return registerMutation.error.response.data.error;
+    }
     if (registerMutation.error?.response?.data?.message) {
       return registerMutation.error.response.data.message;
     }

@@ -38,6 +38,12 @@ const Sidebar = () => {
       roles: [USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.REP]
     },
     {
+      name: 'Orders',
+      path: '/orders',
+      icon: '🛒',
+      roles: [USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.REP]
+    },
+    {
       name: 'Users',
       path: '/users',
       icon: '👥',

@@ -30,6 +30,11 @@ import VisitDetail from '../pages/visits/VisitDetail';
 import SampleList from '../pages/samples/SampleList';
 import SampleForm from '../pages/samples/SampleForm';
 
+// Order pages
+import OrderList from '../pages/orders/OrderList';
+import OrderForm from '../pages/orders/OrderForm';
+import OrderDetail from '../pages/orders/OrderDetail';
+
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
 
@@ -123,6 +128,11 @@ const AppRoutes = () => {
         <Route path="/samples" element={<SampleList />} />
         <Route path="/samples/new" element={<SampleForm />} />
         <Route path="/samples/:id/edit" element={<SampleForm />} />
+
+        {/* Order routes */}
+        <Route path="/orders" element={<OrderList />} />
+        <Route path="/orders/new" element={<OrderForm />} />
+        <Route path="/orders/:id" element={<OrderDetail />} />
       </Route>
 
       {/* Redirect root to dashboard */}

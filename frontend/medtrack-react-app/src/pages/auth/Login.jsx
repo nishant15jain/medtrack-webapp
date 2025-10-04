@@ -21,6 +21,10 @@ const Login = () => {
   };
 
   const getErrorMessage = () => {
+    // Check for error message in response data (backend format: {error: "..."} or {message: "..."})
+    if (loginMutation.error?.response?.data?.error) {
+      return loginMutation.error.response.data.error;
+    }
     if (loginMutation.error?.response?.data?.message) {
       return loginMutation.error.response.data.message;
     }

@@ -1,0 +1,4 @@
+ALTER TABLE product 
+ADD COLUMN price DECIMAL(10,2) DEFAULT 0.00,
+ADD COLUMN stock_quantity INT DEFAULT 0;
+

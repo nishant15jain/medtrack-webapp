@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,6 +33,12 @@ public class Product {
     
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+    
+    @Column(name = "price", precision = 10, scale = 2)
+    private BigDecimal price;
+    
+    @Column(name = "stock_quantity")
+    private Integer stockQuantity;
     
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
