@@ -36,7 +36,8 @@ public class SecurityConfig {
            "http://localhost:*", 
            "https://localhost:*",
            "https://*.netlify.app",
-           "https://*.vercel.app"
+           "https://*.vercel.app",
+           "https://medtrack.netlify.app"
        ));
        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
        configuration.setAllowedHeaders(Arrays.asList("*"));
