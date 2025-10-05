@@ -1,7 +1,7 @@
 // API Configuration
 // export const API_BASE_URL = 'http://localhost:8080/api';
 export const API_BASE_URL = 'http://medtrack-webapp-env.eba-v2e3mjjn.eu-north-1.elasticbeanstalk.com/api';
-// export const API_BASE_URL = '/api';
+// export const API_BASE_URL = '/api/proxy-login';
 
 // User Roles
 export const USER_ROLES = {
