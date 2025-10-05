@@ -1,13 +1,17 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createUser } from '../../api/userApi';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createUser, updateUser, getUserById } from '../../api/userApi';
+import { getActiveLocations } from '../../api/locationApi';
 import { USER_ROLES, ROLE_DESCRIPTIONS } from '../../utils/constants';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import '../doctors/DoctorForm.css';
+import './UserForm.css';
 
 const UserForm = () => {
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -16,13 +20,59 @@ const UserForm = () => {
     email: '',
     password: '',
     phone: '',
-    role: USER_ROLES.REP
+    role: USER_ROLES.REP,
+    locationIds: []
+  });
+
+  // Fetch existing user data if in edit mode
+  const { data: existingUser, isLoading: userLoading } = useQuery({
+    queryKey: ['user', id],
+    queryFn: () => getUserById(id),
+    enabled: isEditMode,
+  });
+
+  // Populate form with existing user data
+  useEffect(() => {
+    if (existingUser && isEditMode) {
+      setFormData({
+        name: existingUser.name || '',
+        email: existingUser.email || '',
+        password: '', // Don't populate password in edit mode
+        phone: existingUser.phone || '',
+        role: existingUser.role || USER_ROLES.REP,
+        locationIds: existingUser.locationIds || []
+      });
+    }
+  }, [existingUser, isEditMode]);
+
+  const { data: locations, isLoading: locationsLoading } = useQuery({
+    queryKey: ['locations', 'active'],
+    queryFn: getActiveLocations,
   });
 
   const mutation = useMutation({
-    mutationFn: createUser,
+    mutationFn: (data) => {
+      if (isEditMode) {
+        // In edit mode, only send fields that should be updated
+        const updateData = {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          role: data.role,
+          locationIds: data.locationIds
+        };
+        // Only include password if it was changed
+        if (data.password && data.password.trim() !== '') {
+          updateData.password = data.password;
+        }
+        return updateUser(id, updateData);
+      } else {
+        return createUser(data);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['users']);
+      queryClient.invalidateQueries(['user', id]);
       navigate('/users');
     },
   });
@@ -35,6 +85,20 @@ const UserForm = () => {
     }));
   };
 
+  const handleLocationToggle = (locationId) => {
+    setFormData(prev => {
+      const currentIds = prev.locationIds || [];
+      const isSelected = currentIds.includes(locationId);
+      
+      return {
+        ...prev,
+        locationIds: isSelected
+          ? currentIds.filter(id => id !== locationId)
+          : [...currentIds, locationId]
+      };
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     mutation.mutate(formData);
@@ -44,12 +108,21 @@ const UserForm = () => {
     navigate('/users');
   };
 
+  // Show loading spinner while fetching user data in edit mode
+  if (isEditMode && userLoading) {
+    return <LoadingSpinner fullScreen />;
+  }
+
   return (
     <div className="doctor-form-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Add New User</h1>
-          <p className="page-description">Create a new system user</p>
+          <h1 className="page-title">
+            {isEditMode ? 'Edit User' : 'Add New User'}
+          </h1>
+          <p className="page-description">
+            {isEditMode ? 'Update user information and assigned locations' : 'Create a new system user'}
+          </p>
         </div>
       </div>
 
@@ -57,7 +130,7 @@ const UserForm = () => {
         <form onSubmit={handleSubmit} className="doctor-form">
           {mutation.isError && (
             <ErrorMessage 
-              message={mutation.error?.response?.data?.message || 'Failed to create user'}
+              message={mutation.error?.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} user`}
               onClose={() => mutation.reset()}
             />
           )}
@@ -101,17 +174,18 @@ const UserForm = () => {
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="password" className="form-label">
-                Password <span className="required">*</span>
+                Password {!isEditMode && <span className="required">*</span>}
+                {isEditMode && <span className="form-help-text"> (leave blank to keep current)</span>}
               </label>
               <input
                 type="password"
                 id="password"
                 name="password"
                 className="form-input"
-                placeholder="Enter password"
+                placeholder={isEditMode ? "Enter new password (optional)" : "Enter password"}
                 value={formData.password}
                 onChange={handleChange}
-                required
+                required={!isEditMode}
                 minLength={6}
                 disabled={mutation.isPending}
               />
@@ -156,6 +230,54 @@ const UserForm = () => {
             </select>
           </div>
 
+          <div className="form-group">
+            <label className="form-label">
+              Assign Locations {formData.role === USER_ROLES.REP && <span className="required">*</span>}
+            </label>
+            
+            {locationsLoading ? (
+              <div className="locations-loading">
+                <LoadingSpinner size="small" />
+                <span>Loading locations...</span>
+              </div>
+            ) : locations && locations.length > 0 ? (
+              <div className="locations-checkbox-container">
+                <div className="locations-checkbox-list">
+                  {locations.map((location) => (
+                    <label 
+                      key={location.id} 
+                      className={`location-checkbox-item ${formData.locationIds.includes(location.id) ? 'selected' : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.locationIds.includes(location.id)}
+                        onChange={() => handleLocationToggle(location.id)}
+                        disabled={mutation.isPending}
+                        className="location-checkbox"
+                      />
+                      <div className="location-info">
+                        <span className="location-name">📍 {location.name} {location.city}{location.state ? `, ${location.state}` : ''}</span>
+                        {/* <span className="location-city">{location.city}{location.state ? `, ${location.state}` : ''}</span> */}
+                      </div>
+                      {formData.locationIds.includes(location.id) && (
+                        <span className="check-icon">✓</span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+                {formData.locationIds.length > 0 && (
+                  <div className="selected-count">
+                    <strong>{formData.locationIds.length}</strong> location(s) selected
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="no-locations-message">
+                <p>No active locations available</p>
+              </div>
+            )}
+          </div>
+
           <div className="form-actions">
             <button
               type="button"
@@ -173,10 +295,10 @@ const UserForm = () => {
               {mutation.isPending ? (
                 <span className="btn-loading">
                   <LoadingSpinner size="small" />
-                  <span>Creating...</span>
+                  <span>{isEditMode ? 'Updating...' : 'Creating...'}</span>
                 </span>
               ) : (
-                'Create User'
+                isEditMode ? 'Update User' : 'Create User'
               )}
             </button>
           </div>

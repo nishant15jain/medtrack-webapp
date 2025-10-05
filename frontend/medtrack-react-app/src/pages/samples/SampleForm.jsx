@@ -135,6 +135,18 @@ const SampleForm = () => {
     navigate('/samples');
   };
 
+  const formatErrorMessage = (error) => {
+    const apiMessage = error?.response?.data?.error;
+  
+    if (!apiMessage) return 'Failed to save sample';
+    if (apiMessage.includes("Sample with doctor id") && apiMessage.includes("already exists")) {
+      return "This doctor already has a sample for this product.";
+    }
+  
+    return apiMessage;
+  };
+  
+
   if (isFetchingSample || isDoctorsLoading || isProductsLoading || isVisitsLoading) {
     return <LoadingSpinner fullScreen />;
   }
@@ -154,7 +166,7 @@ const SampleForm = () => {
         <form onSubmit={handleSubmit} className="doctor-form">
           {mutation.isError && (
             <ErrorMessage 
-              message={mutation.error?.response?.data?.message || 'Failed to save sample'}
+              message={formatErrorMessage(mutation.error)}
               onClose={() => mutation.reset()}
             />
           )}

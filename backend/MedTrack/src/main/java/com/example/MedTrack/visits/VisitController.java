@@ -7,6 +7,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,8 +42,17 @@ public class VisitController {
     @GetMapping
     @Operation(summary = "Get all visits", description = "Retrieves a list of all visits (MANAGER, ADMIN)")
     @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN') or hasRole('REP')")
-    public ResponseEntity<List<VisitDto>> getAllVisits() {
-        return ResponseEntity.ok(visitService.getAllVisits());
+    public ResponseEntity<List<VisitDto>> getAllVisits(Authentication authentication) {
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+        Long userId = Long.parseLong(authentication.getName()); // assuming username = userId
+    
+        if (role.equals("ROLE_REP")) {
+            // REP → only their own visits
+            return ResponseEntity.ok(visitService.getVisitsByUserId(userId));
+        } else {
+            // MANAGER/ADMIN → see everything
+            return ResponseEntity.ok(visitService.getAllVisits());
+        }
     }
 
     @GetMapping("/user/{userId}")
@@ -113,6 +124,44 @@ public class VisitController {
             @Parameter(description = "ID of the visit to delete") @PathVariable Long id) {
         visitService.deleteVisit(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @PostMapping("/start")
+    @Operation(summary = "Start a new visit", description = "Starts a new visit with check-in time (REP, MANAGER, ADMIN)")
+    @PreAuthorize("hasRole('REP') or hasRole('MANAGER') or hasRole('ADMIN')")
+    public ResponseEntity<VisitDto> startVisit(@Valid @RequestBody StartVisitRequest request) {
+        return ResponseEntity.ok(visitService.startVisit(
+            request.getUserId(), 
+            request.getLocationId(), 
+            request.getDoctorId(), 
+            request.getNotes()
+        ));
+    }
+    
+    @PutMapping("/{id}/end")
+    @Operation(summary = "End a visit", description = "Ends an active visit with check-out time")
+    @PreAuthorize("hasRole('REP') or hasRole('MANAGER') or hasRole('ADMIN')")
+    public ResponseEntity<VisitDto> endVisit(
+            @Parameter(description = "ID of the visit to end") @PathVariable Long id,
+            @RequestBody(required = false) EndVisitRequest request) {
+        String notes = request != null ? request.getNotes() : null;
+        return ResponseEntity.ok(visitService.endVisit(id, notes));
+    }
+    
+    @GetMapping("/location/{locationId}")
+    @Operation(summary = "Get visits by location", description = "Retrieves all visits for a specific location")
+    @PreAuthorize("hasRole('REP') or hasRole('MANAGER') or hasRole('ADMIN')")
+    public ResponseEntity<List<VisitDto>> getVisitsByLocation(
+            @Parameter(description = "Location ID to filter by") @PathVariable Long locationId) {
+        return ResponseEntity.ok(visitService.getVisitsByLocation(locationId));
+    }
+    
+    @GetMapping("/user/{userId}/active")
+    @Operation(summary = "Get active visits by user", description = "Retrieves all in-progress visits for a user")
+    @PreAuthorize("hasRole('REP') or hasRole('MANAGER') or hasRole('ADMIN')")
+    public ResponseEntity<List<VisitDto>> getActiveVisitsByUser(
+            @Parameter(description = "User ID to filter by") @PathVariable Long userId) {
+        return ResponseEntity.ok(visitService.getActiveVisitsByUser(userId));
     }
 }
 

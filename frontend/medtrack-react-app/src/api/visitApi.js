@@ -73,3 +73,27 @@ export const deleteVisit = async (id) => {
   return response.data;
 };
 
+// Start visit (new location-based workflow)
+export const startVisit = async (visitData) => {
+  const response = await api.post(`${API_ENDPOINTS.VISITS}/start`, visitData);
+  return response.data;
+};
+
+// End visit
+export const endVisit = async (id, notes) => {
+  const response = await api.put(`${API_ENDPOINTS.VISITS}/${id}/end`, { notes });
+  return response.data;
+};
+
+// Get visits by location
+export const getVisitsByLocation = async (locationId) => {
+  const response = await api.get(`${API_ENDPOINTS.VISITS}/location/${locationId}`);
+  return response.data;
+};
+
+// Get active visits by user
+export const getActiveVisitsByUser = async (userId) => {
+  const response = await api.get(`${API_ENDPOINTS.VISITS}/user/${userId}/active`);
+  return response.data;
+};
+

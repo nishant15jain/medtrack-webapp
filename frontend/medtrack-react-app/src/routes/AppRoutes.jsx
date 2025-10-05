@@ -20,6 +20,7 @@ import ProductDetail from '../pages/products/ProductDetail';
 // User pages
 import UserList from '../pages/users/UserList';
 import UserForm from '../pages/users/UserForm';
+import UserDetail from '../pages/users/UserDetail';
 
 // Visit pages
 import VisitList from '../pages/visits/VisitList';
@@ -34,6 +35,14 @@ import SampleForm from '../pages/samples/SampleForm';
 import OrderList from '../pages/orders/OrderList';
 import OrderForm from '../pages/orders/OrderForm';
 import OrderDetail from '../pages/orders/OrderDetail';
+
+// Location pages
+import LocationList from '../pages/locations/LocationList';
+import LocationForm from '../pages/locations/LocationForm';
+import BulkLocationForm from '../pages/locations/BulkLocationForm';
+
+// Visit Start
+import VisitStartForm from '../pages/visits/VisitStartForm';
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
@@ -100,11 +109,11 @@ const AppRoutes = () => {
           } 
         />
 
-        {/* User routes - ADMIN only */}
+        {/* User routes - ADMIN and MANAGER */}
         <Route 
           path="/users" 
           element={
-            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.MANAGER]}>
               <UserList />
             </ProtectedRoute>
           } 
@@ -117,10 +126,27 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/users/:id" 
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.MANAGER]}>
+              <UserDetail />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/users/:id/edit" 
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.MANAGER]}>
+              <UserForm />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* Visit routes */}
         <Route path="/visits" element={<VisitList />} />
         <Route path="/visits/new" element={<VisitForm />} />
+        <Route path="/visits/start" element={<VisitStartForm />} />
         <Route path="/visits/:id" element={<VisitDetail />} />
         <Route path="/visits/:id/edit" element={<VisitForm />} />
 
@@ -133,6 +159,40 @@ const AppRoutes = () => {
         <Route path="/orders" element={<OrderList />} />
         <Route path="/orders/new" element={<OrderForm />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
+
+        {/* Location routes - ADMIN only */}
+        <Route 
+          path="/locations" 
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+              <LocationList />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/locations/new" 
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+              <LocationForm />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/locations/bulk" 
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+              <BulkLocationForm />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/locations/edit/:id" 
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+              <LocationForm />
+            </ProtectedRoute>
+          } 
+        />
       </Route>
 
       {/* Redirect root to dashboard */}

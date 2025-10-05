@@ -1,5 +1,6 @@
 package com.example.MedTrack.users;
 
+import com.example.MedTrack.locations.Location;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -50,6 +53,14 @@ public class User {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_locations",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "location_id")
+    )
+    private Set<Location> locations = new HashSet<>();
     
     @PreUpdate
     protected void onUpdate() {

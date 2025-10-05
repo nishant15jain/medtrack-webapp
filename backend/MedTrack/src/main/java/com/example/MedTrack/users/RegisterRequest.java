@@ -4,6 +4,8 @@ import lombok.Data;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.List;
+
 @Data
 public class RegisterRequest {
     @NotBlank(message = "Name is required")
@@ -18,4 +20,5 @@ public class RegisterRequest {
     
     private UserRole role;
     private String phone;
+    private List<Long> locationIds;
 }

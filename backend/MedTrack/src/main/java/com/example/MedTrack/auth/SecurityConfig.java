@@ -35,7 +35,8 @@ public class SecurityConfig {
        configuration.setAllowedOriginPatterns(Arrays.asList(
            "http://localhost:*", 
            "https://localhost:*",
-           "https://*.netlify.app"
+           "https://*.netlify.app",
+           "https://*.vercel.app"
        ));
        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
        configuration.setAllowedHeaders(Arrays.asList("*"));
@@ -51,13 +52,25 @@ public class SecurityConfig {
        http.csrf(csrf -> csrf.disable())
            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
            .authorizeHttpRequests(auth -> auth
-                   .requestMatchers("/api/auth/**").permitAll()
-                   .requestMatchers("/swagger-ui/**").permitAll()
-                   .requestMatchers("/swagger-ui.html").permitAll()
-                   .requestMatchers("/v3/api-docs/**").permitAll()
-                   // User management - ADMIN only
-                   .requestMatchers("/api/users").hasRole("ADMIN")
-                   .requestMatchers("/api/users/**").hasRole("ADMIN")
+                  .requestMatchers("/api/auth/**").permitAll()
+                  .requestMatchers("/swagger-ui/**").permitAll()
+                  .requestMatchers("/swagger-ui.html").permitAll()
+                  .requestMatchers("/v3/api-docs/**").permitAll()
+                  // User location access - Users can view their own locations
+                  .requestMatchers("GET", "/api/users/*/locations").hasAnyRole("ADMIN", "MANAGER", "REP")
+                  .requestMatchers("GET", "/api/users/by-location/*").hasAnyRole("ADMIN", "MANAGER")
+                  // User location management - ADMIN only
+                  .requestMatchers("PUT", "/api/users/*/locations").hasRole("ADMIN")
+                  .requestMatchers("POST", "/api/users/*/locations/*").hasRole("ADMIN")
+                  .requestMatchers("DELETE", "/api/users/*/locations/*").hasRole("ADMIN")
+                  // User management - ADMIN only
+                  .requestMatchers("/api/users").hasRole("ADMIN")
+                  .requestMatchers("/api/users/**").hasRole("ADMIN")
+                   // Location management - All roles can view, ADMIN can modify
+                   .requestMatchers("GET", "/api/locations/**").hasAnyRole("ADMIN", "MANAGER", "REP")
+                   .requestMatchers("POST", "/api/locations/**").hasRole("ADMIN")
+                   .requestMatchers("PUT", "/api/locations/**").hasRole("ADMIN")
+                   .requestMatchers("DELETE", "/api/locations/**").hasRole("ADMIN")
                    // Doctor management - All roles can view, ADMIN can modify
                    .requestMatchers("GET", "/api/doctors/**").hasAnyRole("ADMIN", "MANAGER", "REP")
                    .requestMatchers("POST", "/api/doctors/**").hasRole("ADMIN")

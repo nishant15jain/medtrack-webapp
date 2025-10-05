@@ -71,6 +71,10 @@ const UserList = () => {
     toggleActiveMutation.mutate({ id: user.id, isActive: user.isActive });
   };
 
+  const handleRowClick = (user) => {
+    navigate(`/users/${user.id}`);
+  };
+
   const columns = [
     { key: 'name', label: 'Name', width: '20%' },
     { key: 'email', label: 'Email', width: '25%' },
@@ -164,6 +168,7 @@ const UserList = () => {
         <Table
           columns={columns}
           data={users}
+          onRowClick={handleRowClick}
           emptyMessage="No users found"
         />
       </div>

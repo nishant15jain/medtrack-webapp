@@ -2,6 +2,7 @@ package com.example.MedTrack.visits;
 
 import com.example.MedTrack.users.User;
 import com.example.MedTrack.doctors.Doctor;
+import com.example.MedTrack.locations.Location;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,9 +34,23 @@ public class Visit {
     @NotNull(message = "Doctor is required")
     private Doctor doctor;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
+    
     @NotNull(message = "Visit date is required")
     @Column(name = "visit_date", nullable = false)
     private LocalDate visitDate;
+    
+    @Column(name = "check_in_time")
+    private LocalDateTime checkInTime;
+    
+    @Column(name = "check_out_time")
+    private LocalDateTime checkOutTime;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private VisitStatus status = VisitStatus.COMPLETED;
     
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;

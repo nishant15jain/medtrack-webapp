@@ -286,8 +286,16 @@ const OrderDetail = () => {
               {order.orderItems?.length || 0} items
             </span>
           </div>
-          <div className="order-items-table">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="order-items-table" style={{ 
+            overflowX: 'auto',
+            width: '100%',
+            maxWidth: '100%'
+          }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse',
+              minWidth: '600px'
+            }}>
               <thead>
                 <tr style={{ 
                   backgroundColor: '#f9fafb', 
@@ -566,6 +574,61 @@ const OrderDetail = () => {
         .payment-paid {
           background-color: #d1fae5;
           color: #065f46;
+        }
+
+        /* Mobile responsive styles for order items table */
+        @media (max-width: 768px) {
+          .order-items-table {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          }
+          
+          .order-items-table table {
+            font-size: 14px;
+          }
+          
+          .order-items-table th,
+          .order-items-table td {
+            padding: 8px !important;
+            white-space: nowrap;
+          }
+          
+          .order-items-table th:first-child,
+          .order-items-table td:first-child {
+            position: sticky;
+            left: 0;
+            background-color: inherit;
+            z-index: 1;
+          }
+          
+          .order-items-table thead th:first-child {
+            background-color: #f9fafb;
+          }
+          
+          .order-items-table tbody tr:nth-child(even) td:first-child {
+            background-color: #ffffff;
+          }
+          
+          .order-items-table tbody tr:nth-child(odd) td:first-child {
+            background-color: #f9fafb;
+          }
+          
+          .order-items-table tfoot td:first-child {
+            background-color: #f0fdf4;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .order-items-table table {
+            font-size: 12px;
+          }
+          
+          .order-items-table th,
+          .order-items-table td {
+            padding: 6px !important;
+          }
         }
       `}</style>
     </div>

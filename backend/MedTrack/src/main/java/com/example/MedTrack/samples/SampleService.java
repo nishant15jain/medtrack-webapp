@@ -91,6 +91,7 @@ public class SampleService {
             .map(sampleMapper::toDto)
             .collect(Collectors.toList());
     }
+    
 
     public List<SampleDto> getSamplesByDoctorId(Long doctorId) {
         // Validate doctor exists

@@ -49,3 +49,35 @@ export const deactivateUser = async (id) => {
   return response.data;
 };
 
+// Location management
+
+// Assign locations to user (replaces all existing locations)
+export const assignLocationsToUser = async (id, locationIds) => {
+  const response = await api.put(`${API_ENDPOINTS.USERS}/${id}/locations`, locationIds);
+  return response.data;
+};
+
+// Add a single location to user
+export const addLocationToUser = async (userId, locationId) => {
+  const response = await api.post(`${API_ENDPOINTS.USERS}/${userId}/locations/${locationId}`);
+  return response.data;
+};
+
+// Remove a location from user
+export const removeLocationFromUser = async (userId, locationId) => {
+  const response = await api.delete(`${API_ENDPOINTS.USERS}/${userId}/locations/${locationId}`);
+  return response.data;
+};
+
+// Get user locations
+export const getUserLocations = async (userId) => {
+  const response = await api.get(`${API_ENDPOINTS.USERS}/${userId}/locations`);
+  return response.data;
+};
+
+// Get users by location
+export const getUsersByLocation = async (locationId) => {
+  const response = await api.get(`${API_ENDPOINTS.USERS}/by-location/${locationId}`);
+  return response.data;
+};
+

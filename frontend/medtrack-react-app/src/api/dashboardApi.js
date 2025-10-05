@@ -1,7 +1,7 @@
-import axiosInstance from './axiosConfig';
+import api from './axiosConfig';
 
 export const getAdminDashboardStats = async () => {
-  const response = await axiosInstance.get('/dashboard/admin/stats');
+  const response = await api.get('/dashboard/admin/stats');
   return response.data;
 };
 

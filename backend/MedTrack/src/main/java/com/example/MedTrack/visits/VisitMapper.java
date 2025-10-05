@@ -12,8 +12,11 @@ public interface VisitMapper {
     @Mapping(source = "user.name", target = "userName")
     @Mapping(source = "doctor.id", target = "doctorId")
     @Mapping(source = "doctor.name", target = "doctorName")
+    @Mapping(source = "location.id", target = "locationId")
+    @Mapping(source = "location.name", target = "locationName")
     @Mapping(source = "user", target = "user")
     @Mapping(source = "doctor", target = "doctor")
+    @Mapping(source = "location", target = "location")
     VisitDto toDto(Visit visit);
 }
 

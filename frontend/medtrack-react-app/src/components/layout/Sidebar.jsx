@@ -47,6 +47,12 @@ const Sidebar = () => {
       name: 'Users',
       path: '/users',
       icon: '👥',
+      roles: [USER_ROLES.ADMIN, USER_ROLES.MANAGER]
+    },
+    {
+      name: 'Locations',
+      path: '/locations',
+      icon: '📍',
       roles: [USER_ROLES.ADMIN]
     }
   ];
